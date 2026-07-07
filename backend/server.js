@@ -1,37 +1,30 @@
 const express = require('express');
+const sql = require('mssql');
 const cors = require('cors');
-require('dotenv').config();
 
 const app = express();
-
-// Middleware
 app.use(cors());
-app.use(express.json());
 
-// Import Routes
-const quizRoutes = require('./routes/quizRoutes');
+const dbConfig = {
+    server: 'localhost',
+    database: 'DoAnTotNghiep',
+    user: 'sa', 
+    password: '12345678', 
+    options: {
+        encrypt: false,
+        trustServerCertificate: true
+    }
+};
 
-// Định nghĩa Route
 app.get('/api/quiz', async (req, res) => {
-    console.log("--- Đã nhận yêu cầu gọi API Quiz ---");
     try {
-        const pool = await sql.connect(dbConfig);
-        console.log("Kết nối SQL thành công, đang truy vấn...");
-        
-        const result = await pool.request().query('SELECT * FROM Quizzes');
-        console.log("Truy vấn xong, số dòng lấy được:", result.recordset.length);
-        
-        res.json({ success: true, data: result.recordset });
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request().query('SELECT * FROM dbo.Quiz');
+        res.json(result.recordset);
     } catch (err) {
-        // In ra mọi thứ liên quan đến lỗi
-        console.error("!!! LỖI NGHIÊM TRỌNG TRONG API !!!");
-        console.error("Thông báo lỗi:", err.message);
-        console.error("Chi tiết lỗi:", err);
-        
-        res.status(500).json({ 
-            success: false, 
-            message: "Lỗi server khi lấy danh sách đề thi",
-            debug: err.message 
-        });
+        console.error('Lỗi SQL:', err);
+        res.status(500).send(err.message);
     }
 });
+
+app.listen(5000, () => console.log('Server chạy tại port 5000'));

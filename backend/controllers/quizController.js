@@ -3,17 +3,22 @@ const { poolPromise } = require('../config/db');
 const getAllQuizzes = async (req, res) => {
     try {
         const pool = await poolPromise;
-        // Đảm bảo bảng trong SQL Server của bạn tên là 'Quizzes'
-   const result = await pool.request().query('SELECT * FROM Quiz');
-        res.status(200).json({ 
+        if (!pool) {
+            throw new Error("Không thể kết nối cơ sở dữ liệu");
+        }
+        
+        const result = await pool.request().query('SELECT * FROM dbo.Quiz');
+        
+        res.json({ 
             success: true, 
             data: result.recordset 
         });
     } catch (err) {
-        console.error("Lỗi tại Controller:", err);
+        console.error("Lỗi truy vấn SQL Server:", err.message);
         res.status(500).json({ 
             success: false, 
-            message: err.message 
+            message: "Lỗi server khi lấy danh sách đề thi",
+            error: err.message 
         });
     }
 };
