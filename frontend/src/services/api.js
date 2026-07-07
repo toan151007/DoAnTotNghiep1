@@ -1,8 +1,8 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
 const apiRequest = async (endpoint, method = 'GET', body = null) => {
-    const token = localStorage.getItem('token'); 
-    
+    const token = localStorage.getItem('token');
+
     const headers = {
         'Content-Type': 'application/json',
     };
@@ -23,14 +23,6 @@ const apiRequest = async (endpoint, method = 'GET', body = null) => {
     }
 };
 
+export const fetchQuizzes = () => apiRequest('/quiz');
+
 export default apiRequest;
-import axios from 'axios';
-
-// Dùng địa chỉ Backend đang chạy (cổng 5000)
-const API = axios.create({
-    baseURL: 'http://localhost:5000/api'
-});
-
-export const fetchQuizzes = () => API.get('/quiz');
-
-export default API;

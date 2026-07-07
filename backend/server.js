@@ -8,13 +8,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes test cơ bản
-app.get('/', (req, res) => {
-    res.send('Server Backend đang hoạt động tốt!');
-});
+// Import Routes
+const quizRoutes = require('./routes/quizRoutes');
 
-// Cổng chạy server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server đang chạy ổn định tại cổng: http://localhost:${PORT}`);
+// Định nghĩa Route
+app.get('/api/quiz', async (req, res) => {
+    console.log("--- Đã nhận yêu cầu gọi API Quiz ---");
+    try {
+        const pool = await sql.connect(dbConfig);
+        console.log("Kết nối SQL thành công, đang truy vấn...");
+        
+        const result = await pool.request().query('SELECT * FROM Quizzes');
+        console.log("Truy vấn xong, số dòng lấy được:", result.recordset.length);
+        
+        res.json({ success: true, data: result.recordset });
+    } catch (err) {
+        // In ra mọi thứ liên quan đến lỗi
+        console.error("!!! LỖI NGHIÊM TRỌNG TRONG API !!!");
+        console.error("Thông báo lỗi:", err.message);
+        console.error("Chi tiết lỗi:", err);
+        
+        res.status(500).json({ 
+            success: false, 
+            message: "Lỗi server khi lấy danh sách đề thi",
+            debug: err.message 
+        });
+    }
 });

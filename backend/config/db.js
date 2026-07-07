@@ -19,8 +19,25 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
         return pool;
     })
     .catch(err => {
-        console.error('Kết nối SQL Server thất bại: ', err);
-        process.exit(1);
+        console.error('Kết nối SQL Server thất bại: ', err.message);
+        return null;
     });
 
 module.exports = { sql, poolPromise };
+const config = {
+    server: 'localhost',
+    // Bỏ qua user/password nếu dùng Windows Authentication
+    authentication: {
+        type: 'ntlm', // Hoặc 'default'
+        options: {
+            userName: '', 
+            password: '',
+            domain: '' 
+        }
+    },
+    options: {
+        database: 'DoAnTotNghiep',
+        encrypt: false,
+        trustServerCertificate: true
+    }
+};
