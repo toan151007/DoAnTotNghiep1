@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
-
-// Import Controller (Chỉ import 1 lần duy nhất)
 const quizController = require('../controllers/quizController');
 
-// Điều hướng tới hàm getAllQuizzes
+// Route này sẽ gọi tới /api/quiz/ (vì ở server.js ta đã map /api/quiz)
 router.get('/', quizController.getAllQuizzes);
 
 module.exports = router;

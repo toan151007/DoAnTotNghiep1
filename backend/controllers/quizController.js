@@ -1,29 +1,12 @@
-const { poolPromise } = require('../config/db');
+const sql = require('mssql');
 
-const getAllQuizzes = async (req, res) => {
+exports.getAllQuizzes = async (req, res) => {
     try {
-        const pool = await poolPromise;
-        if (!pool) {
-            throw new Error("Không thể kết nối cơ sở dữ liệu");
-        }
-        
+        const pool = await req.app.locals.poolPromise;
         const result = await pool.request().query('SELECT * FROM dbo.Quiz');
-        
-        res.json({ 
-            success: true, 
-            data: result.recordset 
-        });
+        // Chỉ trả về mảng trực tiếp, không bọc thêm object để frontend dễ xử lý
+        res.json(result.recordset); 
     } catch (err) {
-        console.error("Lỗi truy vấn SQL Server:", err.message);
-        res.status(500).json({ 
-            success: false, 
-            message: "Lỗi server khi lấy danh sách đề thi",
-            error: err.message 
-        });
+        res.status(500).send(err.message);
     }
-};
-
-// Đóng gói và export hàm
-module.exports = {
-    getAllQuizzes
 };

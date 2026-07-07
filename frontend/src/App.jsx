@@ -1,19 +1,39 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import QuizList from './pages/Quiz/QuizList'; // Đảm bảo file này đã tồn tại theo hướng dẫn trước
+import { useEffect, useState } from 'react';
 
 function App() {
+  const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/quiz')
+      .then(res => res.json())
+      .then(data => {
+        // Dữ liệu lúc này là mảng [] chuẩn, dùng map thoải mái
+        setQuizzes(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>Đang tải...</div>;
+
   return (
-    <Router>
-      <div style={{ margin: '0 auto', maxWidth: '800px', fontFamily: 'Arial, sans-serif' }}>
-        <Routes>
-          {/* Khi người dùng vào trang chủ "/", tự động chuyển hướng sang "/quiz" */}
-          <Route path="/" element={<Navigate to="/quiz" replace />} />
-          
-          {/* Đường dẫn "/quiz" sẽ hiển thị giao diện danh sách đề thi */}
-          <Route path="/quiz" element={<QuizList />} />
-        </Routes>
-      </div>
-    </Router>
+    <div style={{ padding: '20px' }}>
+      <h1>Danh sách Đề Thi</h1>
+      {quizzes.length > 0 ? (
+        quizzes.map((quiz) => (
+          <div key={quiz.QuizId} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
+            <h3>{quiz.Title}</h3>
+            <p>{quiz.Description}</p>
+          </div>
+        ))
+      ) : (
+        <p>Không tìm thấy đề thi nào.</p>
+      )}
+    </div>
   );
 }
 
